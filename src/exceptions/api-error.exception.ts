@@ -11,7 +11,7 @@ export class ApiErrorException extends AbstractException {
   constructor(
     status: HttpStatus,
     descriptionCode: MessagesUtilKeys,
-    body: any
+    body?: any
   ) {
     super(HttpStatus[status])
     this.status = status

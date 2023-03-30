@@ -38,8 +38,14 @@ export class ValidationErrorException extends AbstractException {
   }
 
   private parseMessageError(constraints: string, value: string) {
-    // eslint-disable-next-line prefer-const
-    let { message, regexFilterParam } = constraintsErrors[constraints]
+    const parseMessage = constraintsErrors[constraints]
+
+    if (!parseMessage) {
+      return value
+    }
+
+    let message = parseMessage.message
+    const regexFilterParam = parseMessage.regexFilterParam
 
     if (!regexFilterParam) return message
 

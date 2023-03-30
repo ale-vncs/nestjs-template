@@ -2,7 +2,7 @@ import { ConstraintsErrosData } from '@typings/message.typings'
 
 export const messagesUtil = {
   routeNotFound: 'Rota não encontrada',
-  //= ===========================================================================================
+  contextDataUndefined: 'Data no contexto não encontrado',
   badRequest: 'Erro no requisição.',
   connectionDatabaseError: 'Erro na conexão com o banco',
   unknownError: 'Um erro desconhecido ocorreu',

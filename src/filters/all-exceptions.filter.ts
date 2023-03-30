@@ -7,16 +7,14 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { ApiErrorException } from '@exceptions/api-error.exception'
-import { Response } from 'express'
-import { Null } from '@typings/generic.typing'
 import { ResponseApi } from '@utils/result.util'
 import { ValidationErrorException } from '@exceptions/validation-error.exception'
 import { LoggerAbstract } from '@logger/logger.abstract'
+import { Response } from 'express'
+import { parseResponse } from '@utils/response.util'
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  private response: Null<Response> = null
-
   constructor(private logger: LoggerAbstract) {
     logger.setContext(AllExceptionsFilter.name)
   }
@@ -25,8 +23,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp()
     const response = ctx.getResponse()
     const request = ctx.getRequest()
-
-    this.response = response
 
     this.logger.error(exception)
     this.logger.error(exception.stack)
@@ -40,7 +36,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const execFuncException = exceptionList[exception.name] ?? null
 
     if (execFuncException) {
-      return execFuncException.bind(this)(exception)
+      return this.send(response, execFuncException.bind(this)(exception))
     }
 
     const status =
@@ -48,11 +44,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR
 
-    return this.buildResponse()
+    const data = ResponseApi.builder()
       .setStatus(status)
       .setCode('unknownError')
-      .setBody({ path: request.url, message: exception.message })
-      .send()
+      .body({ path: request.url, message: exception.message })
+
+    return this.send(response, data)
   }
 
   private apiErrorException(exception: ApiErrorException) {
@@ -60,42 +57,29 @@ export class AllExceptionsFilter implements ExceptionFilter {
       `${exception.descriptionCode} - {}`,
       exception.description
     )
-    const response = this.buildResponse()
-    return response
+    return ResponseApi.builder()
       .setStatus(exception.status)
       .setCode(exception.descriptionCode)
-      .setBody(exception.body)
-      .send()
+      .body(exception.body)
   }
 
   private notFoundException(exception: NotFoundException) {
-    const response = this.buildResponse()
-    return response
+    return ResponseApi.builder()
       .setStatus(HttpStatus.NOT_FOUND)
       .setCode('routeNotFound')
-      .setBody(exception.message)
-      .send()
+      .body(exception.message)
   }
 
   private classValidationException(exception: ValidationErrorException) {
-    const response = this.buildResponse()
     this.logger.error(exception.erros)
 
-    return response
+    return ResponseApi.builder()
       .setStatus(HttpStatus.BAD_REQUEST)
       .setCode('validationError')
-      .setBody(exception.parse())
-      .send()
+      .body(exception.parse())
   }
 
-  private getResponse() {
-    if (this.response) {
-      return this.response
-    }
-    throw new Error('Sem response')
-  }
-
-  private buildResponse() {
-    return new ResponseApi(this.getResponse())
+  private send(res: Response, data: ResponseApi<unknown>) {
+    return res.status(data.status).send(parseResponse(data))
   }
 }

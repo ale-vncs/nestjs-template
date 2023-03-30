@@ -8,7 +8,8 @@ import { ContextModule } from '@context/context.module'
 import { ConfigMiddleware } from './middlewares/config.middleware'
 import { LoggerModule } from '@logger/logger.module'
 import { AllExceptionsFilter } from './filters/all-exceptions.filter'
-import { APP_FILTER } from '@nestjs/core'
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
+import { ResponseInterceptor } from './interceptors/response.interceptor'
 
 @Module({
   imports: [
@@ -25,6 +26,10 @@ import { APP_FILTER } from '@nestjs/core'
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
       scope: Scope.DEFAULT
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor
     },
     AppService
   ]
