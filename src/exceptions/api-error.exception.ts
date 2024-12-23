@@ -1,22 +1,22 @@
-import { messagesUtil, MessagesUtilKeys } from '@utils/messages.util'
-import { HttpStatus } from '@nestjs/common'
-import { AbstractException } from '@exceptions/abstract-exception'
+import { AbstractException } from '@exceptions/abstract-exception';
+import { HttpStatus } from '@nestjs/common';
+import { MessagesUtilKeys, messagesUtil } from '@utils/messages.util';
 
 export class ApiErrorException extends AbstractException {
-  public status = HttpStatus.INTERNAL_SERVER_ERROR
-  public readonly descriptionCode: MessagesUtilKeys
-  public readonly body: any
-  public readonly description: string
+  public status = HttpStatus.INTERNAL_SERVER_ERROR;
+  public readonly errCode: MessagesUtilKeys;
+  public readonly description: string;
+  public readonly details?: string;
 
   constructor(
-    status: HttpStatus,
-    descriptionCode: MessagesUtilKeys,
-    body?: any
+    status: keyof typeof HttpStatus,
+    errCode: MessagesUtilKeys,
+    details?: string,
   ) {
-    super(HttpStatus[status])
-    this.status = status
-    this.descriptionCode = descriptionCode
-    this.body = body
-    this.description = messagesUtil[this.descriptionCode]
+    super(messagesUtil[errCode]);
+    this.status = HttpStatus[status];
+    this.errCode = errCode;
+    this.description = messagesUtil[errCode];
+    this.details = details;
   }
 }

@@ -1,0 +1,10 @@
+import { ServiceRepoAbstract } from '@abstracts/service-repo.abstract';
+import { ServiceRepo } from '@decorators/service-repo.decorator';
+import { {{repository-pascal-case}} } from '@resources/{{module-name}}/{{module-name}}.repository';
+
+@ServiceRepo({{repository-pascal-case}})
+export class {{service-pascal-case}} extends ServiceRepoAbstract<{{repository-pascal-case}}> {
+  async getServiceName() {
+    return '{{service-pascal-case}}';
+  }
+}

@@ -1,15 +1,25 @@
-const context = ['api', 'scheduler'] as const
+import { RoleEnum } from '@enums/role.enum';
+import { Null } from '@typings/generic.typing';
+import { JwtPayload } from '@typings/jwt.typing';
+import { Request } from 'express';
 
-export type AppContextType = (typeof context)[number]
+const context = ['api', 'scheduler'] as const;
+
+export type AppContextType = (typeof context)[number];
 
 export interface ContextKeys {
-  req: {
-    method: string
-    host: string
-    originalUrl: string
-  }
+  req: Request;
   logger: {
-    transactionId: string
-    context: AppContextType
-  }
+    pathToIgnore: string[];
+    transactionId: string;
+    context: AppContextType;
+  };
+  cookie: {
+    accessToken: Null<string>;
+  };
+  user: {
+    id: string;
+    role: RoleEnum;
+    tokenType: JwtPayload['tt'];
+  };
 }

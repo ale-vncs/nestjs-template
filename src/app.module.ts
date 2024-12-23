@@ -1,41 +1,38 @@
-import { MiddlewareConsumer, Module, NestModule, Scope } from '@nestjs/common'
-import helmet from 'helmet'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
-import { ConfigModule } from '@nestjs/config'
-import { systemConfig } from '@config/system.config'
-import { ContextModule } from '@context/context.module'
-import { ConfigMiddleware } from './middlewares/config.middleware'
-import { LoggerModule } from '@logger/logger.module'
-import { AllExceptionsFilter } from './filters/all-exceptions.filter'
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
-import { ResponseInterceptor } from './interceptors/response.interceptor'
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+
+import { configModuleConfig } from '@config/config-module.config';
+import { providerGlobal } from '@config/provider-global.config';
+import { typeormModuleConfig } from '@config/typeorm-module.config';
+import { ContextModule } from '@context/context.module';
+import { CacheModule } from '@integrations/cache/cache.module';
+import { SecurityModule } from '@integrations/security/security.module';
+import { LoggerModule } from '@logger/logger.module';
+import { AuthModule } from '@resources/auth/auth.module';
+import { HealthModule } from '@resources/health/health.module';
+import { UserModule } from '@resources/user/user.module';
+import { ConfigMiddleware } from './middlewares/config.middleware';
+import { QueryParamMiddleware } from './middlewares/query-param.middleware';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      load: [systemConfig],
-      isGlobal: true
-    }),
+    configModuleConfig,
+    typeormModuleConfig,
+    CacheModule,
+    HealthModule,
     ContextModule,
-    LoggerModule
+    LoggerModule,
+    SecurityModule,
+    AuthModule,
+    UserModule,
   ],
-  controllers: [AppController],
-  providers: [
-    {
-      provide: APP_FILTER,
-      useClass: AllExceptionsFilter,
-      scope: Scope.DEFAULT
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: ResponseInterceptor
-    },
-    AppService
-  ]
+  providers: [...providerGlobal],
 })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(helmet(), ConfigMiddleware).forRoutes('*')
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(helmet(), cookieParser(), ConfigMiddleware, QueryParamMiddleware)
+      .forRoutes('*');
   }
 }

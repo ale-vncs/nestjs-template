@@ -1,0 +1,7 @@
+import { AbstractSeed } from '../utils/abstract-seed';
+
+export class {{FileName}} extends AbstractSeed {
+  constructor() {
+    super({{FileName}})
+  }
+}
