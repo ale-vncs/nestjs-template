@@ -1,0 +1,6 @@
+export { default as StringVto } from './string-vto.decorator'
+export { default as IntVto } from './int-vto.decorator'
+export { default as NumberVto } from './number-vto.decorator'
+export { default as DateVto } from './date-vto.decorator'
+export { default as ClassVto } from './class-vto.decorator'
+export { default as EnumVto } from './enum-vto.decorator'

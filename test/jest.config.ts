@@ -1,38 +1,41 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as dotenv from 'dotenv';
-import type { Config } from 'jest';
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import * as dotenv from 'dotenv'
+import type { Config } from 'jest'
+import process from 'process'
+
+process.env.TZ = 'UTC'
 
 dotenv.config({
-  path: '.env.test',
-});
+  path: '.env.test'
+})
 
 const getModuleNameMapper = () => {
-  const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
-  const tsConfig = fs.readFileSync(tsConfigPath, { encoding: 'utf8' });
+  const tsConfigPath = path.join(process.cwd(), 'tsconfig.json')
+  const tsConfig = fs.readFileSync(tsConfigPath, { encoding: 'utf8' })
 
   const paths = JSON.parse(tsConfig).compilerOptions.paths as Record<
     string,
     [string]
-  >;
+  >
 
-  const moduleNameMapper: Record<string, string> = {};
+  const moduleNameMapper: Record<string, string> = {}
 
   const keyParse = (key: string) => {
-    return key.replace('/*', '(.*)');
-  };
+    return key.replace('/*', '(.*)')
+  }
 
   const valueParse = (value: string) => {
-    return value.replace('/*', '$1');
-  };
+    return value.replace('/*', '$1')
+  }
 
   Object.entries(paths).forEach(([key, [value]]) => {
-    const keyModule = `^${keyParse(key)}$`;
-    moduleNameMapper[keyModule] = `<rootDir>/${valueParse(value)}`;
-  });
+    const keyModule = `^${keyParse(key)}$`
+    moduleNameMapper[keyModule] = `<rootDir>/${valueParse(value)}`
+  })
 
-  return moduleNameMapper;
-};
+  return moduleNameMapper
+}
 
 const config: Config = {
   silent: process.env.LOGGER_TEST === 'false',
@@ -48,9 +51,9 @@ const config: Config = {
       'ts-jest',
       {
         isolatedModules: true,
-        diagnostics: false,
-      },
-    ],
+        diagnostics: false
+      }
+    ]
   },
   verbose: true,
   logHeapUsage: true,
@@ -60,8 +63,8 @@ const config: Config = {
       branches: 65,
       functions: 70,
       lines: 85,
-      statements: 85,
-    },
+      statements: 85
+    }
   },
   coverageDirectory: path.join(process.cwd(), 'coverage'),
   collectCoverageFrom: [
@@ -79,10 +82,10 @@ const config: Config = {
     '!src/**/*.guard.ts',
     '!src/**/*.filter.ts',
     '!src/**/*.entity.ts',
-    '!src/**/*.interceptor.ts',
+    '!src/**/*.interceptor.ts'
   ],
   testEnvironment: 'node',
-  detectOpenHandles: false,
-};
+  detectOpenHandles: false
+}
 
-export default config;
+export default config
