@@ -1,3 +1,5 @@
+import { RoleEnum } from '@enums/role.enum';
+import { UserPendingIssuesEnum } from '@enums/user-pending-issues.enum';
 import { JwtPayload } from '@typings/jwt.typing';
 
 export type MockUserFn = (builder: UserMockBuilder) => void;
@@ -7,6 +9,8 @@ export interface UserMock {
   name: string;
   email: string;
   password: string;
+  role: RoleEnum;
+  pendingIssues: UserPendingIssuesEnum[];
 }
 
 export class UserMockBuilder {
@@ -24,6 +28,8 @@ export class UserMockBuilder {
       name: 'User Test',
       email: 'user.test@test.com',
       password: 'abc123',
+      role: RoleEnum.ADMINISTRATOR,
+      pendingIssues: [],
     };
   }
 
@@ -48,6 +54,16 @@ export class UserMockBuilder {
 
   password(password: string) {
     this.userMock.password = password;
+    return this;
+  }
+
+  role(role: RoleEnum) {
+    this.userMock.role = role;
+    return this;
+  }
+
+  pendingIssues(issues: UserPendingIssuesEnum[]) {
+    this.userMock.pendingIssues = issues;
     return this;
   }
 

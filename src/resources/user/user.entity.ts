@@ -32,9 +32,8 @@ export class UserEntity extends RemoveSoftEntityAbstract {
   })
   pendingIssues!: UserPendingIssuesEnum[];
 
-  @Column({
-    type: 'text',
-    transformer: TypeOrmUtil.transformArrayEnum(RoleEnum),
+  @EnumColumn({
+    enumClass: RoleEnum,
   })
   role!: RoleEnum;
 }

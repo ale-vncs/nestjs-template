@@ -142,7 +142,7 @@ export class AuthService extends ServiceAbstract {
     this.logger.debug(`Ambiente: ${tokenType}`);
 
     const tokenTypeRoleMap: Record<JwtPayload['tt'], RoleEnum[]> = {
-      wb: [RoleEnum.ADMINISTRATOR],
+      wb: [RoleEnum.ADMINISTRATOR, RoleEnum.GUEST],
     };
 
     const rolesByTokenType = tokenTypeRoleMap[tokenType];

@@ -1,6 +1,5 @@
 import { Provider, ValidationPipe } from '@nestjs/common';
 
-import { TestContextService } from '@config/test-context.service';
 import { ValidationErrorException } from '@exceptions/validation-error.exception';
 import { JwtAuthGuard } from '@guards/jwt-auth.guard';
 import { RolesGuard } from '@guards/roles.guard';
@@ -35,10 +34,10 @@ export const providerGlobal: Provider[] = [
     provide: APP_INTERCEPTOR,
     useClass: ResponseInterceptor,
   },
+  {
+    provide: 'TestContextService',
+    useClass: class {},
+  },
   JwtAuthGuard,
   RolesGuard,
 ];
-
-if (process.env.NODE_ENV === 'test') {
-  providerGlobal.push(TestContextService);
-}

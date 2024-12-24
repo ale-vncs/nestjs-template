@@ -1,7 +1,13 @@
 import { applyDecorators } from '@nestjs/common';
 import { ClassType } from '@typings/generic.typing';
-import { Transform, Type, plainToInstance } from 'class-transformer';
+import {
+  Transform,
+  Type,
+  instanceToInstance,
+  plainToInstance,
+} from 'class-transformer';
 import { IsDefined, ValidateNested, ValidationOptions } from 'class-validator';
+import { isObject } from 'lodash';
 
 export const IsClassEx = (
   cls: ClassType<unknown>,
@@ -16,11 +22,11 @@ export const IsClassEx = (
   if (validationOptions?.each) {
     decorators.push(
       Transform(({ value }) => {
-        return value
-          .map((item: unknown) =>
-            typeof item !== 'object' ? JSON.parse(String(item)) : item,
-          )
-          .map((item: unknown) => plainToInstance(cls, item));
+        return value.map((item: unknown) =>
+          isObject(item)
+            ? instanceToInstance(cls, item)
+            : plainToInstance(cls, item),
+        );
       }),
     );
   }

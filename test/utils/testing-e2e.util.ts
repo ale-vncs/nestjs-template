@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { AppModule } from '@appModule';
-import { TestContextService } from '@config/test-context.service';
 import {
   TypeOrmConfigService,
   typeOrmModuleOptions,
@@ -14,6 +13,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CacheConfigMockService } from '@test/mocks/cache-config-mock.service';
 import { JwtAuthMockGuard } from '@test/mocks/jwt-auth-mock.guard';
+import { TestContextService } from '@test/mocks/test-context.service';
 import request from 'supertest';
 import TestAgent from 'supertest/lib/agent';
 import { DataSource } from 'typeorm';
@@ -46,7 +46,9 @@ export const testingE2eUtil = () => {
       .overrideProvider(JwtAuthGuard)
       .useClass(JwtAuthMockGuard)
       .overrideProvider(CacheConfigService)
-      .useClass(CacheConfigMockService);
+      .useClass(CacheConfigMockService)
+      .overrideProvider('TestContextService')
+      .useClass(TestContextService);
     if (!showLogger) {
       // biome-ignore lint/correctness/useHookAtTopLevel: <explanation>
       testingModule
@@ -67,12 +69,12 @@ export const testingE2eUtil = () => {
     await dataSource.dropDatabase();
     await dataSource.runMigrations();
     await execScript('init-database.sql');
-    getModule(TestContextService).resetTestContext();
+    getTestContext().resetTestContext();
     api = request(nestApp.getHttpServer());
   }, 15000);
 
   afterEach(async () => {
-    getModule(TestContextService).resetTestContext();
+    getTestContext().resetTestContext();
   });
 
   afterAll(async () => {
@@ -81,9 +83,12 @@ export const testingE2eUtil = () => {
     await nestApp.close();
   }, 15000);
 
-  const getModule = <T>(obj: new (...args: never[]) => T) => {
+  const getModule = <T>(obj: (new (...args: never[]) => T) | string) => {
     return moduleFixture.get<T>(obj);
   };
+
+  const getTestContext = () =>
+    getModule<TestContextService>('TestContextService');
 
   const getDataSource = () => {
     return getModule(DataSource);
@@ -115,7 +120,7 @@ export const testingE2eUtil = () => {
   };
 
   const mockUserAuthenticated = (user?: MockUserFn) => {
-    const testContext = getModule(TestContextService);
+    const testContext = getTestContext();
     const userMock = UserMockBuilder.builder();
     userMock.autoLogin(true);
     user?.(userMock);

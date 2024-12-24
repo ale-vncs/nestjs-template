@@ -1,11 +1,12 @@
-import { TestContextService } from '@config/test-context.service';
 import { ContextService } from '@context/context.service';
 import { JwtAuthGuard } from '@guards/jwt-auth.guard';
 import { CommonLogger } from '@logger/common-logger.abstract';
 import { ExecutionContext, Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common/decorators/core/inject.decorator';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from '@resources/auth/auth.service';
 import { UserEntity } from '@resources/user/user.entity';
+import { TestContextService } from '@test/mocks/test-context.service';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { DataSource } from 'typeorm';
@@ -16,6 +17,7 @@ export class JwtAuthMockGuard extends JwtAuthGuard {
     private dataSource: DataSource,
     private authService: AuthService,
     private logger: CommonLogger,
+    @Inject('TestContextService')
     private testContext: TestContextService,
     ctx: ContextService,
     reflector: Reflector,
@@ -38,6 +40,8 @@ export class JwtAuthMockGuard extends JwtAuthGuard {
     userEntity.name = userMock.name;
     userEntity.email = userMock.email;
     userEntity.password = bcrypt.hashSync(userMock.password, salt);
+    userEntity.role = userMock.role;
+    userEntity.pendingIssues = userMock.pendingIssues;
 
     const userRepo = this.dataSource.getRepository(UserEntity);
 

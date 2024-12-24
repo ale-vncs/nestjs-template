@@ -96,10 +96,7 @@ export class UserService extends ServiceRepoAbstract<UserRepository> {
 
   async doLogin(identity: string, password: string) {
     this.logger.info(`Buscando usuário com: ${identity}`);
-    const userOp =
-      await this.repository.getUserByIdentityWithSalesPersonAndVendorPerson(
-        identity,
-      );
+    const userOp = await this.repository.getUserByIdentity(identity);
 
     const tokenType = this.getTokenType();
     const user = this.setUserDataContext(userOp, tokenType);
@@ -137,8 +134,7 @@ export class UserService extends ServiceRepoAbstract<UserRepository> {
 
   async getUserToLoginById(userId: string) {
     this.logger.info(`Buscando pelo id: ${userId}`);
-    const userOp =
-      await this.repository.getUserByIdWithSalesPersonAndVendorPerson(userId);
+    const userOp = await this.repository.getUserById(userId);
     if (!userOp) {
       throw new ApiErrorException('FORBIDDEN', 'PASSWORD_OR_EMAIL_WRONG');
     }
@@ -185,6 +181,7 @@ export class UserService extends ServiceRepoAbstract<UserRepository> {
     this.logger.info(`Buscando informação do cargo: ${rolesKey}`);
 
     switch (rolesKey) {
+      case 'GUEST':
       case 'ADMINISTRATOR':
         break;
       default: {
