@@ -4,6 +4,6 @@ import { Module } from '@nestjs/common';
 @Module({
   imports: [{{imports}}],
   providers: [{{providers}}],
-  controllers: [{{controllers}}]
+  controllers: [{{controllers}}],
 })
 export class {{module-pascal-case}} {}

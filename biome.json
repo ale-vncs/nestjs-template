@@ -1,7 +1,8 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
-  "organizeImports": {
-    "enabled": true
+  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
+  "formatter": {
+    "enabled": true,
+    "lineEnding": "lf"
   },
   "linter": {
     "enabled": true,
@@ -12,22 +13,30 @@
         "useHookAtTopLevel": "error"
       },
       "suspicious": {
+        "noEmptyInterface": "off",
         "noShadowRestrictedNames": "off",
         "noArrayIndexKey": "off"
       },
       "complexity": {
         "noForEach": "off",
-        "noStaticOnlyClass": "off"
+        "noStaticOnlyClass": "off",
+        "noBannedTypes": "off"
       },
       "style": {
         "noParameterAssign": "off",
         "useExponentiationOperator": "off",
         "useImportType": "off"
+      },
+      "a11y": {
+        "useMediaCaption": "off"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
       }
     }
   },
   "files": {
-    "ignore": ["./**/dist/**", "./**/dist-dev/**"]
+    "includes": ["src/**/*"]
   },
   "javascript": {
     "formatter": {
@@ -43,6 +52,14 @@
     "formatter": {
       "indentStyle": "space",
       "indentWidth": 2
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
     }
   }
 }

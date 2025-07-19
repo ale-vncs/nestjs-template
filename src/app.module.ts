@@ -9,11 +9,13 @@ import { ContextModule } from '@context/context.module';
 import { CacheModule } from '@integrations/cache/cache.module';
 import { SecurityModule } from '@integrations/security/security.module';
 import { LoggerModule } from '@logger/logger.module';
+import { ConfigMiddleware } from '@middlewares/config.middleware';
+import { QueryParamMiddleware } from '@middlewares/query-param.middleware';
+
+// Resources
 import { AuthModule } from '@resources/auth/auth.module';
 import { HealthModule } from '@resources/health/health.module';
 import { UserModule } from '@resources/user/user.module';
-import { ConfigMiddleware } from './middlewares/config.middleware';
-import { QueryParamMiddleware } from './middlewares/query-param.middleware';
 
 @Module({
   imports: [

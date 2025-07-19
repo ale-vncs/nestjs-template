@@ -1,0 +1,21 @@
+import { TestUtil } from '@test/utils/test.util';
+import { testingE2eUtil } from '@test/utils/testing-e2e.util';
+
+describe('{{controller-pascal-case}}', () => {
+  const { itUtil } = testingE2eUtil();
+
+  it('Deve ter sucesso', async () => {
+    const { api, mockUserAuthenticated } = itUtil();
+
+    mockUserAuthenticated();
+
+    const { status, body } = await api
+      .get('/hello')
+      .then(TestUtil.parseResponseUtil);
+
+    expect(status).toBe(200);
+    expect(body).toStrictEqual({
+      hello: 'Hi!',
+    });
+  });
+});

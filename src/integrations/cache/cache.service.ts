@@ -1,13 +1,12 @@
 import { LoggerAbstract } from '@abstracts/logger.abstract';
 import { Logger } from '@decorators/logger.decorator';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
-import { RedisCache } from 'cache-manager-redis-yet';
 
 @Injectable()
 @Logger()
 export class CacheService extends LoggerAbstract implements OnModuleDestroy {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: RedisCache) {
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {
     super();
   }
 
@@ -35,9 +34,7 @@ export class CacheService extends LoggerAbstract implements OnModuleDestroy {
   }
 
   async close() {
-    if (this.cacheManager.store.client) {
-      await this.cacheManager.store.client.disconnect();
-    }
+    await this.cacheManager.disconnect();
   }
 
   async onModuleDestroy(): Promise<void> {

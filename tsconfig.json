@@ -36,8 +36,8 @@
       "@guards/*": ["./src/guards/*"],
       "@auth/*": ["./src/auth/*"],
       "@common/*": ["./src/common/*"],
-      "@database/*": ["./src/database/*"],
       "@resources/*": ["./src/resources/*"],
+      "@middlewares/*": ["./src/middlewares/*"],
       "@utils/*": ["./src/utils/*"],
       "@typings/*": ["./src/typings/*"],
       "@test/*": ["./test/*"]

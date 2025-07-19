@@ -1,5 +1,3 @@
-import { Undefined } from '@typings/generic.typing';
-
 const getEnv = <T = string>(key: string, defaultValue = ''): T => {
   const value = process.env[key];
   if (value) return String(value) as T;
@@ -26,7 +24,7 @@ export const appConfig = () => {
     redis: {
       host: getEnv('REDIS_HOST', 'localhost'),
       port: Number.parseInt(getEnv('REDIS_PORT', '6379')),
-      password: getEnv<Undefined<string>>('REDIS_PASSWORD', undefined),
+      password: getEnv('REDIS_PASSWORD', ''),
     },
     security: {
       cryptoSecret: getEnv(

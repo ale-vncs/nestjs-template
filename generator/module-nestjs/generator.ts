@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { join } from 'node:path';
 import { checkbox, input } from '@inquirer/prompts';
 import { AbstractGenerator, GeneratorOptions } from '../abstract-generator';
 
@@ -64,10 +65,18 @@ export class Generator extends AbstractGenerator {
       moduleName,
     );
 
-    fs.mkdirSync(moduleRootPath);
+    this.createFolder(moduleRootPath);
 
     if (modulesToCreate.includes('controller')) {
+      const testRootPath = path.join(
+        this.getBackendRootPath(),
+        'test',
+        'specs',
+        moduleName,
+      );
+      this.createFolder(testRootPath);
       this.createController(moduleName, moduleRootPath);
+      this.createTest(moduleName, testRootPath);
     }
 
     if (modulesToCreate.includes('entity')) {
@@ -170,9 +179,9 @@ export class Generator extends AbstractGenerator {
 
     const file = template
       .replace(/{{module-imports}}/g, importFiles.join('\n'))
-      .replace(/{{imports}}/g, importModules.join(','))
-      .replace(/{{providers}}/g, providerModules.join(','))
-      .replace(/{{controllers}}/g, controllerModules.join(','))
+      .replace(/{{imports}}/g, importModules.join(', '))
+      .replace(/{{providers}}/g, providerModules.join(', '))
+      .replace(/{{controllers}}/g, controllerModules.join(', '))
       .replace(/{{module-pascal-case}}/g, names.module.pascalCase);
 
     fs.writeFileSync(
@@ -181,9 +190,22 @@ export class Generator extends AbstractGenerator {
       { encoding: 'utf-8' },
     );
 
-    console.log(
-      `Arquivos criados com sucesso. Lembre-se de adicionar o ${names.module.pascalCase} no app.module.ts`,
+    const appModulePath = join(
+      this.getBackendRootPath(),
+      'src',
+      'app.module.ts',
     );
+    const newImport = `import { ${names.module.pascalCase} } from '@resources/${moduleName}/${moduleName}.module';`;
+    const newModule = `    ${names.module.pascalCase}`;
+    const appModuleFile = fs.readFileSync(appModulePath, { encoding: 'utf-8' });
+    const moduleConfigUpdated = appModuleFile
+      .replace(/(Resources\r?\n)/g, `$1\n${newImport}`)
+      .replace(
+        // @ts-ignore
+        /(\s*imports:\s*\[.*?)(\n\s*\],)/s,
+        `$1\n${newModule},$2`,
+      );
+    fs.writeFileSync(appModulePath, moduleConfigUpdated, 'utf-8');
   }
 
   private createEntity(moduleName: string, moduleRootPath: string) {
@@ -199,6 +221,8 @@ export class Generator extends AbstractGenerator {
       file,
       { encoding: 'utf-8' },
     );
+
+    console.log('Arquivos criados com sucesso.');
   }
 
   private createController(moduleName: string, moduleRootPath: string) {
@@ -213,6 +237,22 @@ export class Generator extends AbstractGenerator {
 
     fs.writeFileSync(
       path.join(moduleRootPath, `${moduleName}.controller.ts`),
+      file,
+      { encoding: 'utf-8' },
+    );
+  }
+
+  private createTest(moduleName: string, testRootPath: string) {
+    const template = this.getTemplate('test');
+
+    const names = this.getNames(moduleName);
+    const file = template.replace(
+      /{{controller-pascal-case}}/g,
+      names.controller.pascalCase,
+    );
+
+    fs.writeFileSync(
+      path.join(testRootPath, `${moduleName}.controller.e2e.spec.ts`),
       file,
       { encoding: 'utf-8' },
     );
@@ -271,12 +311,21 @@ export class Generator extends AbstractGenerator {
       | 'entity'
       | 'repository'
       | 'module'
-      | 'service-repo',
+      | 'service-repo'
+      | 'test',
   ) {
     const templatePath = path.join(
       __dirname,
       `${templateName}-ts-template.txt`,
     );
     return fs.readFileSync(templatePath, { encoding: 'utf-8' });
+  }
+
+  private createFolder(folderName: string) {
+    try {
+      fs.mkdirSync(folderName);
+    } catch (e) {
+      console.warn(`A pasta ${folderName} já existe`);
+    }
   }
 }
